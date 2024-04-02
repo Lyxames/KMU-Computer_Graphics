@@ -51,5 +51,6 @@ class MyGlWindow : public Fl_Gl_Window {
 		void setProjection(int clearProjection = 1);
 		void getMouseNDC(float& x, float& y);
 		void setupLight(float x, float y, float z);
+    int _selected;
 };
 

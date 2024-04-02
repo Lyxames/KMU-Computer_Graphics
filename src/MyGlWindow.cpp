@@ -87,6 +87,7 @@ MyGlWindow::MyGlWindow(int x, int y, int w, int h) :
 
 	TimingData::init();
 	run = 0;
+  _selected = -1;
 
 }
 
@@ -274,7 +275,7 @@ void MyGlWindow::doPick()
 	glInitNames();
 	glPushName(0);
 
-  mover->draw(shadow=0);
+  mover->draw(0); // shadow=0 to add
 
 	// draw the cubes, loading the names as we go
 	//for (size_t i = 0; i < world->points.size(); ++i) {
@@ -289,10 +290,10 @@ void MyGlWindow::doPick()
 		// are multiple objects, you really want to pick the closest
 		// one - see the OpenGL manual 
 		// remember: we load names that are one more than the index
-		//selectedCube = buf[3] - 1;
+		_selected = buf[3] - 1;
 	}
 	else {// nothing hit, nothing selected
-		//selectedCube = -1;
+    _selected = -1;
 	}
 	//printf("Selected Cube %d\n", selectedCube);
 }
@@ -345,8 +346,8 @@ int MyGlWindow::handle(int e)
 		  m_lastMouseY = Fl::event_y();
 
 		  if (m_pressedMouseButton == 1) {
-        doPick();
-        if (selected >= 0) {
+        doPick(); 
+        if (_selected >= 0) {
           std::cout << "picked" << std::endl;
         }
       } 
@@ -362,8 +363,19 @@ int MyGlWindow::handle(int e)
 
 		  float fractionChangeX = static_cast<float>(Fl::event_x() - m_lastMouseX) / static_cast<float>(this->w());
 		  float fractionChangeY = static_cast<float>(m_lastMouseY - Fl::event_y()) / static_cast<float>(this->h());
+      if ( _selected >= 0 && m_pressedMouseButton == 1) {
+        double r1x, r1y, r1z, r2x, r2y, r2z;
+        getMouseLine(r1x, r1y, r1z, r2x, r2y, r2z);
 
-		  if( m_pressedMouseButton == 1 ) {
+        double rx, ry, rz;
+        mousePoleGo(r1x, r1y, r1z, r2x, r2y, r2z,
+        static_cast<double>(mover->m_particle->getPosition().x),
+        static_cast<double>(mover->m_particle->getPosition().x),
+        static_cast<double>(mover->m_particle->getPosition().x),
+        rx, ry, rz,
+       (Fl::event_state() & FL_CTRL) != 0);
+        damage(1);
+      } else if( m_pressedMouseButton == 1 ) {
 			  m_viewer->rotate( fractionChangeX, fractionChangeY );
 		  } else if( m_pressedMouseButton == 2 ) {
 			  m_viewer->zoom( fractionChangeY );
