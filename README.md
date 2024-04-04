@@ -13,7 +13,7 @@ sudo apt install libfltk:i386
 
 ## On Arch based OS
 enable 32bits repositories
-enable multilib: https://wiki.archlinux.org/title/Official_repositories#multilib
+enable multilib: https://wiki.archlinux.org/title/Official_repositories#multilib <br>
 install fltk 32bit lib and glu 32bit lib
 ```Bash
 paru -S lib32-fltk lib32-glu
