@@ -1,6 +1,4 @@
-
-
-#include <MyGlWindow.h>
+#include "MyGlWindow.h"
 
 
 
@@ -8,16 +6,11 @@
 #include "DrawUtils.H"
 #include "timing.h"
 
-//homemade include
-#include <FL/Fl.H>
-#include <GL/gl.h>
-#include <GL/glu.h>
-//#include <GL/freeglut.h>
-
 
 static double DEFAULT_VIEW_POINT[3] = {30, 30, 30};
 static double DEFAULT_VIEW_CENTER[3] = {0, 0, 0};
 static double DEFAULT_UP_VECTOR[3] = {0, 1, 0};
+int selected = -1;
 
 
 
@@ -87,7 +80,6 @@ MyGlWindow::MyGlWindow(int x, int y, int w, int h) :
 
 	TimingData::init();
 	run = 0;
-  _selected = -1;
 
 }
 
@@ -148,9 +140,6 @@ void MyGlWindow::drawStuff()
 void MyGlWindow::draw()
 //==========================================================================
 {
-  //Picking Exercises
-  glLoadName(0);
-  // 
 
   glViewport(0,0,w(),h());
 
@@ -214,25 +203,22 @@ void MyGlWindow::draw()
   
 
   //draw objects
-
   glPushMatrix();
   glColor3f(1, 0, 0);
   mover->draw(0);
   glPopMatrix();
 
   /////////////////////////
-  putText("LinuxIsWorking!!!", 0, 0, 1, 1, 0);
-  //fix of mksung
+  putText("Nathan Lemale", 0, 0, 1, 1, 0);
   glViewport(0, 0, w(), h());
   setProjection();
   glEnable(GL_COLOR_MATERIAL);
-  // end of fix of mksung
 
 }
 
 void MyGlWindow::test()
 {
-
+	mover->resetParameters();
 }
 
 void MyGlWindow::update()
@@ -243,9 +229,8 @@ void MyGlWindow::update()
 	if (!run) return;
 
 	float duration = (float)TimingData::get().lastFrameDuration * 0.003f;
-  if (mover) {
-    mover->update(duration);
-  }
+
+	mover->update(duration);
 }
 
 
@@ -275,8 +260,12 @@ void MyGlWindow::doPick()
 	glInitNames();
 	glPushName(0);
 
-  mover->draw(0); // shadow=0 to add
+	for (int i = 0; i < mover->size; i++)
+	{
+		glLoadName(i + 1);
 
+		mover[i].draw(0);
+	}
 	// draw the cubes, loading the names as we go
 	//for (size_t i = 0; i < world->points.size(); ++i) {
 	//	glLoadName((GLuint)(i + 1));
@@ -290,10 +279,12 @@ void MyGlWindow::doPick()
 		// are multiple objects, you really want to pick the closest
 		// one - see the OpenGL manual 
 		// remember: we load names that are one more than the index
-		_selected = buf[3] - 1;
+		//selectedCube = buf[3] - 1;
+		selected = buf[3] - 1;
 	}
 	else {// nothing hit, nothing selected
-    _selected = -1;
+		selected = -1;
+		//selectedCube = -1;
 	}
 	//printf("Selected Cube %d\n", selectedCube);
 }
@@ -329,60 +320,76 @@ static int last_push;
 int m_pressedMouseButton;
 int m_lastMouseX;
 int m_lastMouseY;
+cyclone::Vector3 initialPos;
 
 int MyGlWindow::handle(int e)
 //==========================================================================
 {
-
-  switch(e) {
-  case FL_SHOW:		// you must handle this, or not be seen!
-	  show();
-	  return 1;
-  case FL_PUSH:
-	  {
-		 
-		  m_pressedMouseButton = Fl::event_button();
-		  m_lastMouseX = Fl::event_x();
-		  m_lastMouseY = Fl::event_y();
-
-		  if (m_pressedMouseButton == 1) {
-        doPick(); 
-        if (_selected >= 0) {
-          std::cout << "picked" << std::endl;
-        }
-      } 
-	  }
-	  damage(1);
-	  return 1;
-  case FL_RELEASE:
-	  m_pressedMouseButton = -1;
+	switch (e) {
+	case FL_SHOW:		// you must handle this, or not be seen!
+		show();
+		return 1;
+	case FL_PUSH:
+	{
+		m_pressedMouseButton = Fl::event_button();
+		m_lastMouseX = Fl::event_x();
+		m_lastMouseY = Fl::event_y();
+		if (m_pressedMouseButton == 1) {
+			std::cout << "Clicking" << std::endl;
+			doPick();
+			if (selected >= 0) {
+				initialPos = mover[selected].m_particle->getPosition();
+				std::cout << "picked" << std::endl;
+			}
+			damage(1);
+			return 1;
+		};
+		break;
+	}
+	damage(1);
+	return 1;
+	case FL_RELEASE:
+		m_pressedMouseButton = -1;
+		if (selected >= 0) {
+			cyclone::Vector3 finalPos = mover[selected].m_particle->getPosition();
+			cyclone::Vector3 newVelocity = finalPos - initialPos;
+			std::cout << "Initial Position: X[" << initialPos.x << "] Y[" << initialPos.y << "] Z[" << initialPos.z << "]" << std::endl;
+			std::cout << "Final Position: X[" << finalPos.x << "] Y[" << finalPos.y << "] Z[" << finalPos.z << "]" << std::endl;
+			std::cout << "New Velocity: X[" << newVelocity.x << "] Y[" << newVelocity.y <<  "] Z[" << newVelocity.z << "]" << std::endl;
+			mover[selected].m_particle->addForce(newVelocity * 10);
+			// mover[selected].m_particle->setVelocity(newVelocity);
+			run = 1;
+			selected = -1;
+		}
 	  damage(1);
 	  return 1;
   case FL_DRAG: // if the user drags the mouse
 	  {
-
 		  float fractionChangeX = static_cast<float>(Fl::event_x() - m_lastMouseX) / static_cast<float>(this->w());
 		  float fractionChangeY = static_cast<float>(m_lastMouseY - Fl::event_y()) / static_cast<float>(this->h());
-      if ( _selected >= 0 && m_pressedMouseButton == 1) {
-        double r1x, r1y, r1z, r2x, r2y, r2z;
-        getMouseLine(r1x, r1y, r1z, r2x, r2y, r2z);
 
-        double rx, ry, rz;
-        mousePoleGo(r1x, r1y, r1z, r2x, r2y, r2z,
-        static_cast<double>(mover->m_particle->getPosition().x),
-        static_cast<double>(mover->m_particle->getPosition().x),
-        static_cast<double>(mover->m_particle->getPosition().x),
-        rx, ry, rz,
-       (Fl::event_state() & FL_CTRL) != 0);
-        damage(1);
-      } else if( m_pressedMouseButton == 1 ) {
-			  m_viewer->rotate( fractionChangeX, fractionChangeY );
+		  if (selected >= 0 && m_pressedMouseButton == 1) {
+			  double r1x, r1y, r1z, r2x, r2y, r2z;
+			  getMouseLine(r1x, r1y, r1z, r2x, r2y, r2z);
+			  double rx, ry, rz;
+			  mousePoleGo(r1x, r1y, r1z, r2x, r2y, r2z,
+				  static_cast<double>(mover[selected].m_particle->getPosition().x),
+				  static_cast<double>(mover[selected].m_particle->getPosition().y),
+				  static_cast<double>(mover[selected].m_particle->getPosition().z),
+				  rx, ry, rz,
+				  (Fl::event_state() & FL_CTRL) != 0);
+			  mover[selected].m_particle->setPosition(rx, ry, rz);
+			  std::cout << "Current Position: X[" << rx << "] Y[" << ry << "] Z[" << rz << "]" << std::endl;
+			  damage(1);
+		  } else if( m_pressedMouseButton == 1) {
+			  m_viewer->rotate(fractionChangeX, fractionChangeY);
 		  } else if( m_pressedMouseButton == 2 ) {
 			  m_viewer->zoom( fractionChangeY );
 		  } else if( m_pressedMouseButton == 3 ) {
 			  m_viewer->translate( -fractionChangeX, -fractionChangeY, (Fl::event_key(FL_Shift_L) == 0) || (Fl::event_key(FL_Shift_R) == 0));
 		  } else {
 			  std::cout << "Warning: dragging with unknown mouse button!  Nothing will be done" << std::endl;
+			  damage(1);
 		  }
 
 		  m_lastMouseX = Fl::event_x();
@@ -421,4 +428,3 @@ void MyGlWindow::getMouseNDC(float& x, float& y)
 	  x = (mx / wd) * 2.0f - 1.f;
 	  y = (my / hd) * 2.0f - 1.f;
 }
-

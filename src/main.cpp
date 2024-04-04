@@ -1,6 +1,6 @@
 // the main routine makes the window, and then runs an even loop
 // until the window is closed
-//#include <windows.h>
+// #include <windows.h>
 #include <iostream>
 #include <ctime>
 
@@ -46,7 +46,7 @@ void idleCB(void* w)
 
 void but_cb(Fl_Widget* o, void*data)
 {
-	Fl_Button* b = (Fl_Button*)o; //Ä³œºÆÃÀÌ ¹ÝµåœÃ ÇÊ¿ä
+	Fl_Button* b = (Fl_Button*)o; //Ä³½ºÆÃÀÌ ¹Ýµå½Ã ÇÊ¿ä
 	MyGlWindow * win = (MyGlWindow *)data;
 	if (b->value())
 		win->run = 1;
@@ -58,7 +58,7 @@ void but_cb(Fl_Widget* o, void*data)
 
 void but_cb2(Fl_Widget* o, void*data)
 {
-	Fl_Button* b = (Fl_Button*)o; //Ä³œºÆÃÀÌ ¹ÝµåœÃ ÇÊ¿ä
+	Fl_Button* b = (Fl_Button*)o; //Ä³½ºÆÃÀÌ ¹Ýµå½Ã ÇÊ¿ä
 	MyGlWindow * win = (MyGlWindow *)data;
 	win->test();
 	win->damage(1);
@@ -87,11 +87,11 @@ int main()
 	choice->add("15");
 	choice->add("30");
 	choice->add("60");
-  choice->add("120");
-  choice->add("240");
-  choice->add("480");
-  choice->add("960");
-  choice->add("1920");
+    choice->add("120");
+    choice->add("240");
+    choice->add("480");
+    choice->add("960");
+    choice->add("1920");
 	choice->value(2);
 	choice->callback((Fl_Callback*)changeFrameCB, gl);
 
@@ -99,6 +99,7 @@ int main()
 
 	Fl_Light_Button * test = new Fl_Light_Button(width - 600, height - 40, 100, 20, "Run");
 	test->callback(but_cb, gl);
+	gl->ui = test;
 
 
 
@@ -117,4 +118,3 @@ int main()
 
 	return 1;
 }
-
