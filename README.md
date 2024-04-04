@@ -8,7 +8,7 @@ sudo apt-get update
 ```
 install fltk 32bit lib and glu 32bit lib
 ```Bash
-sudo apt install libfltk:i386
+sudo apt install libfltk:i386 libglu1-mesa-dev:i386
 ```
 
 ## On Arch based OS
