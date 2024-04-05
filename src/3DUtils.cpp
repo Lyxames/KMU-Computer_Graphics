@@ -1,9 +1,16 @@
 
+#if _WIN64
 //#include <windows.h>
-#include <GL/gl.h>
+	#include <GL/gl.h>
+	#include <GL/glu.h>
+#elif __linux__
+	#include <GL/gl.h>
+	#include <GL/glu.h>
+#elif __APPLE__
+	#include <OpenGL/gl.h>
+	#include <OpenGL/glu.h>
+#endif
 #include <FL/Fl.H>
-#include <GL/glu.h>
-
 #include "3DUtils.h"
 #include "math.h"
 

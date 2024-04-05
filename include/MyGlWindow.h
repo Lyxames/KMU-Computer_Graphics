@@ -1,10 +1,20 @@
 #include <FL/Fl_Gl_Window.H>
 #include <FL/Fl.H>
 #include <FL/Fl_Value_Slider.H>
-//#include <windows.h>
-#include <GL/gl.h>
-#include <GL/glu.h>
-#include <GL/glut.h>
+#if __WIN64
+    #include <windows.h>
+    #include <GL/gl.h>
+    #include <GL/glu.h>
+    #include <GL/glut.h>
+#elif __linux__
+    #include <GL/gl.h>
+    #include <GL/glu.h>
+    #include <GL/glut.h>
+#elif __APPLE__
+    #include <OpenGL/gl.h>
+    #include <OpenGL/glu.h>
+    #include <GLUT/glut.h>
+#endif
 #include <FL/Fl_Double_Window.H>
 
 #include "stdio.h"
@@ -16,7 +26,6 @@
 #include <vector>
 
 #include "core.h"
-
 
 #include "object.h"
 #include <FL/Fl_Light_Button.H>

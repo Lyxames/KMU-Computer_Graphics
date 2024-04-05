@@ -1,12 +1,20 @@
 #pragma once
 
 
-
-//#include <windows.h>
-#include <GL/gl.h>
-#include <GL/glu.h>
-#include <GL/glut.h>
-
+#if _WIN64
+	#include <windows.h>
+	#include <GL/gl.h>
+	#include <GL/glu.h>
+	#include <GL/glut.h>
+#elif __linux__
+	#include <GL/gl.h>
+	#include <GL/glu.h>
+	#include <GL/glut.h>
+#elif __APPLE__
+	#include <OpenGL/gl.h>
+	#include <OpenGL/glu.h>
+	#include <GLUT/glut.h>
+#endif
 
 #include "core.h"
 #include <particle.h>
