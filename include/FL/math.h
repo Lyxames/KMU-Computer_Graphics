@@ -19,7 +19,11 @@
 // Xcode on OS X includes files by recursing down into directories.
 // This code catches the cycle and directly includes the required file.
 #ifdef fl_math_h_cyclic_include 
-#  include "/usr/include/math.h"
+    #if __APPLE__ 
+      #  include <math.h>
+    #else
+      #  include "/usr/include/math.h"
+  #endif
 #endif
 
 #ifndef fl_math_h

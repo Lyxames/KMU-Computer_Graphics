@@ -23,7 +23,11 @@
  * This code catches the cycle and directly includes the required file.
  */
 #ifdef fl_dirent_h_cyclic_include
-#  include "/usr/include/dirent.h"
+  #if __APPLE__
+    #include "dirent.h"
+  #else
+    #  include "/usr/include/dirent.h"
+  #endif
 #endif
 
 #ifndef FL_FILENAME_H

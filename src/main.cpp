@@ -43,7 +43,6 @@ void idleCB(void* w)
 	win->redraw();
 }
 
-
 void but_cb(Fl_Widget* o, void*data)
 {
 	Fl_Button* b = (Fl_Button*)o; //Ä³½ºÆÃÀÌ ¹Ýµå½Ã ÇÊ¿ä

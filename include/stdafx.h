@@ -19,15 +19,18 @@
 #include <string>
 #include <sstream>
 #include <stdlib.h>
-#include <malloc.h>
 #include <memory.h>
 //#include <tchar.h>
 
-
-#include <GL/GL.h>
-#include <GL/GLu.h>
-#include <GL/gLut.h>
-
+#if __APPLE__
+  #include <OpenGL/GL.h>
+  #include <OpenGL/GLu.h>
+  #include <GLUT/gLut.h>
+#else
+  #include <GL/GL.h>
+  #include <GL/GLu.h>
+  #include <GL/gLut.h>
+#endif
 
 // FLTK widgets.
 //
